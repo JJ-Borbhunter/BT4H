@@ -1,7 +1,7 @@
 #include "JoystickManager.hpp"
 #include <cstring>
 
-namespace TC {
+namespace BT4H {
 
 const float DEADZONE = 0.3;
 const int INT_DEADZONE = static_cast<int>(SDL_JOYSTICK_AXIS_MAX * DEADZONE);

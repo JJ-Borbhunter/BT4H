@@ -1,6 +1,6 @@
 #include "InputManagerFactory.hpp"
 
-namespace TC {
+namespace BT4H {
 
 namespace InputManagerFactory {
     

@@ -9,7 +9,7 @@
 #include "KeyboardManager.hpp"
 #include "JoystickManager.hpp"
 
-namespace TC {
+namespace BT4H {
 
 const KeyboardBinding KEYBOARD_DEFAULT {
     SDL_SCANCODE_X,

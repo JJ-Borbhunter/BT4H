@@ -6,7 +6,7 @@
 #include <cstdint>
 #include <memory>
 
-namespace TC {
+namespace BT4H {
 
 namespace Buttons {
 enum buttons {

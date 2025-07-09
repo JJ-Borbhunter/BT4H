@@ -4,7 +4,7 @@
 
 #include "KeyboardManager.hpp"
 
-namespace TC {
+namespace BT4H {
 
 EventField KeyboardManager::getEvents() {
     EventField output = 0;

@@ -3,7 +3,7 @@
 #include <SDL3/SDL_joystick.h>
 #include "InputManager.hpp"
 
-namespace TC {
+namespace BT4H {
 
 namespace JoystickInputTypes {
 const uint8_t BUTTON		= 0;

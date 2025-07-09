@@ -1,6 +1,7 @@
+#pragma once
 #include "InputManager.hpp"
 
-namespace TC {
+namespace BT4H {
 
 class KeyboardManager : public InputManager {
 public:
