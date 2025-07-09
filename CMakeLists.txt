@@ -1,3 +1,4 @@
+add_subdirectory(deps/SDL)
 
 # Source and header files
 file(GLOB BT4H_SRC CONFIGURE_DEPENDS src/*.cpp src/NES/*.cpp)
@@ -10,6 +11,8 @@ add_library(BT4H STATIC ${BT4H_SRC} ${BT4H_HDR})
 target_include_directories(BT4H
     PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}/src
+    PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/deps/SDL/include
 )
 
 # Link against SDL3 (from the subdirectory)
