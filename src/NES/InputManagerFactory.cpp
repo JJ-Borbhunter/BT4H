@@ -30,7 +30,7 @@ SDL_Texture* _SDL_TexFromMemoryConstant(unsigned char* data, int len, SDL_Render
 
     SDL_Surface* surface = SDL_LoadBMP_IO(IO, true);
     if (!surface) {
-        SDL_Log("LoadBMP_RW failed: %s", SDL_GetError());
+        SDL_Log("LoadBMP failed: %s", SDL_GetError());
     }
 
     SDL_Texture* texture = SDL_CreateTextureFromSurface(r, surface);
@@ -107,8 +107,8 @@ std::unique_ptr<InputManager> initializeNew(const std::string config_filepath) {
     end_initialize_new:
 
     SDL_DestroyTexture(font);
-    SDL_DestroyWindow(w);
     SDL_DestroyRenderer(r);
+    SDL_DestroyWindow(w);
     return std::make_unique<KeyboardManager>(KEYBOARD_DEFAULT);
 }
 
