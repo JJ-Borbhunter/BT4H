@@ -99,8 +99,10 @@ std::unique_ptr<InputManager> initializeNew(const std::string config_filepath) {
         SDL_SetRenderDrawColor(r, 255, 255, 255, 255);
         SDL_RenderClear(r);
         _drawText("Welcome to the BT4H controller setup wizard.", 0, 0, r, font);
-        _drawText("Please press any button on the device you wish to set up.", 
-            0, _newline(1), r, font);
+        _drawText("Please press any button on the", 
+            0, _newline(2), r, font);
+        _drawText("device you wish to set up.", 
+            0, _newline(3), r, font);
         SDL_RenderPresent(r);
 
     }
