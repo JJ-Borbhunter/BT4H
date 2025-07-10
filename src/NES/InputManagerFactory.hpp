@@ -4,6 +4,7 @@
 #include <string>
 #include <cstring>
 #include <SDL3/SDL.h>
+#include <SDL3/SDL_surface.h>
 
 #include "InputManager.hpp"
 #include "KeyboardManager.hpp"
@@ -26,13 +27,10 @@ const SDL_GUID KEYBOARD = { 0 };
 
 namespace InputManagerFactory {
 
-std::unique_ptr<InputManager> fromGUID(SDL_GUID guid, const std::string filepath) {
-    if (std::memcmp(&KEYBOARD, &guid, sizeof(SDL_GUID)) == 0) {
-        return std::make_unique<KeyboardManager>(KEYBOARD_DEFAULT);
-    } else {
-        return NULL;
-    }
-}
+std::unique_ptr<InputManager> fromGUID(SDL_GUID guid, const std::string filepath);
+
+std::unique_ptr<InputManager> initializeNew(const std::string config_filepath);
 
 }
+
 }

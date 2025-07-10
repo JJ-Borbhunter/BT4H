@@ -10,6 +10,13 @@ add_library(BT4H STATIC ${BT4H_SRC} ${BT4H_HDR})
 target_include_directories(BT4H
     PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}/src
+    PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/deps/SAGO/
+)
+
+target_sources(BT4H
+    PRIVATE
+        deps/SAGO/sago/platform_folders.cpp
 )
 
 # Link against SDL3 (from the subdirectory)
