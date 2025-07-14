@@ -92,6 +92,8 @@ int _newline(int i) {
 
 
 std::unique_ptr<InputManager> initializeNew(const std::string config_filepath) {
+    SDL_Init(SDL_INIT_JOYSTICK);
+
     SDL_Renderer* r;
     SDL_Window* w;
     w = SDL_CreateWindow("BT4H Controller Setup", 640, 420, 0);
@@ -112,6 +114,7 @@ std::unique_ptr<InputManager> initializeNew(const std::string config_filepath) {
         sticks.push_back(SDL_OpenJoystick(jIDs[i]));
         std::cout << i << std::endl;
     }
+    SDL_free(jIDs);
 
     while(true) {
         SDL_Event e;
