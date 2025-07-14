@@ -4,6 +4,9 @@
 #include "image.h"
 
 
+#include <iostream>
+
+
 constexpr int BMP_CHAR_HEIGHT = 9;
 constexpr int BMP_CHAR_WIDTH = 7;
 constexpr int BMP_CHAR_ROW_LEN = 18;
@@ -15,6 +18,9 @@ constexpr int FONT_WIDTH = 12;
 namespace BT4H {
 
 namespace InputManagerFactory {
+
+void _drawText(const char* text, int x, int y, SDL_Renderer* r, SDL_Texture* font);
+int _newline(int i);
 
 std::unique_ptr<InputManager> fromGUID(SDL_GUID guid, const std::string filepath) {
     if (std::memcmp(&KEYBOARD, &guid, sizeof(SDL_GUID)) == 0) {
@@ -59,58 +65,149 @@ void _drawText(const char* text, int x, int y, SDL_Renderer* r, SDL_Texture* fon
     dest.h = FONT_HEIGHT;
     dest.y = y;
 
+    int offset = 0;
     for (int i = 0; text[i] != '\0'; i++) {
         int true_index = text[i] - 32;
-        if (true_index <= 32) {
+        
+        if (text[i] == '\n') {
+            offset = 0;
+            dest.y += _newline(1);
+            continue;
+        } else if (true_index <= 0) {
+            offset++;
             continue;
         }
         int x1 = true_index % BMP_CHAR_ROW_LEN;
         int y1 = true_index / BMP_CHAR_ROW_LEN;
         src.x = (x1 * BMP_CHAR_WIDTH);
         src.y = (y1 * BMP_CHAR_HEIGHT);
-        dest.x = x + (FONT_WIDTH * i);
+        dest.x = x + (FONT_WIDTH * offset);
         SDL_RenderTexture(r, font, &src, &dest);
+        offset++;
     }
 }
 int _newline(int i) {
     return FONT_HEIGHT * i;
 }
 
+
 std::unique_ptr<InputManager> initializeNew(const std::string config_filepath) {
     SDL_Renderer* r;
     SDL_Window* w;
-    SDL_CreateWindowAndRenderer(
-        "BT4H Controller Setup",
-        640, 420,
-        0,
-        &w,
-        &r);
+    w = SDL_CreateWindow("BT4H Controller Setup", 640, 420, 0);
+    r = SDL_CreateRenderer(w, "software");
+    SDL_SetRenderDrawColor(r, 255, 255, 255, 255);
+
 
     SDL_Texture* font = _LoadFontTex(r);
+
+    int curState = -1;
+    JoystickBinding j;
+    KeyboardBinding k;
+    int device = -2;
+
+    std::vector<SDL_Joystick*> sticks;
+    SDL_JoystickID* jIDs = SDL_GetJoysticks(nullptr);
+    for(int i = 0; jIDs[i] != 0; i++) {
+        sticks.push_back(SDL_OpenJoystick(jIDs[i]));
+        std::cout << i << std::endl;
+    }
 
     while(true) {
         SDL_Event e;
         while(SDL_PollEvent(&e)){
             if (e.type == SDL_EVENT_WINDOW_CLOSE_REQUESTED) {
                 goto end_initialize_new;             
+            } else if (e.type == SDL_EVENT_KEY_DOWN) {
+                if (curState != -1 && device == -1) {
+                    k[curState] = e.key.scancode;
+                    curState++;
+                    SDL_FlushEvent(SDL_EVENT_KEY_DOWN);
+                } else if (device == -2) {
+                    device = -1;
+                    curState = 0;
+                }
+            } else if (e.type == SDL_EVENT_JOYSTICK_BUTTON_DOWN) {
+                if(curState != -1 && device != -1) {
+                    j.indices[curState] = e.jbutton.button;
+                    j.types[curState] = JoystickInputTypes::BUTTON;
+                    curState++;
+                } else if (device == -2) {
+                    device = e.jbutton.which;
+                    curState = 0;
+                }
             }
         }
 
-        SDL_SetRenderDrawColor(r, 255, 255, 255, 255);
         SDL_RenderClear(r);
-        _drawText("Welcome to the BT4H controller setup wizard.", 0, 0, r, font);
-        _drawText("Please press any button on the", 
-            0, _newline(2), r, font);
-        _drawText("device you wish to set up.", 
-            0, _newline(3), r, font);
+        switch (curState) {
+        case -1:
+            _drawText("Welcome to the BT4H controller setup wizard.", 0, 0, r, font);
+            _drawText("Please press any button on the device you wish to set up.", 
+                0, _newline(1), r, font);;
+            break;
+        case 0:
+            _drawText("Please press the A button on your device:", 10, 10, r, font);
+            break;
+        case 1:
+            _drawText("Please press the B button on your device:", 10, 10, r, font);
+            break;
+        case 2:
+            _drawText("Please press UP on your device:", 10, 10, r, font);
+            break;
+        case 3:
+            _drawText("Please press DOWN on your device:", 10, 10, r, font);
+            break;
+        case 4:
+            _drawText("Please press LEFT on your device:", 10, 10, r, font);
+            break;
+        case 5:
+            _drawText("Please press RIGHT on your device:", 10, 10, r, font);
+            break;
+        case 6:
+            _drawText("Please press SELECT on your device:", 10, 10, r, font);
+            break;
+        case 7:
+            _drawText("Please press START on your device:", 10, 10, r, font);
+            break;
+        default:
+            goto end_initialize_new;
+        }
         SDL_RenderPresent(r);
 
     }
     end_initialize_new:
 
+    SDL_RenderClear(r);
+    _drawText(
+        "Note: There are graphical issues with the BT4H\n" 
+        "library on some platforms (such as KDE linux on x11).\n"
+        "\n"
+        "If you are seeing this message you are on such\n"
+        "a platform.\n"
+        "\n"
+        "Your joystick seup is complete.\n"
+        "Please close this app and reopen.",
+        10, 10, r, font
+    );
+    SDL_RenderPresent(r);
+
     SDL_DestroyTexture(font);
     SDL_DestroyRenderer(r);
     SDL_DestroyWindow(w);
+
+    for(auto stick : sticks) {
+        SDL_CloseJoystick(stick);
+    }
+
+    std:: cout << device << ": ";
+    if (device == -1) {
+        for (size_t i = 0; i < 8; i++) {
+            std::cout << SDL_GetScancodeName((SDL_Scancode)k[i]) << ", ";
+        }
+    }
+    std::cout << std::endl;
+
     return std::make_unique<KeyboardManager>(KEYBOARD_DEFAULT);
 }
 

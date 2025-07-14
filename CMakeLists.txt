@@ -21,3 +21,13 @@ target_sources(BT4H
 
 # Link against SDL3 (from the subdirectory)
 target_link_libraries(BT4H PUBLIC SDL3::SDL3)
+
+if(UNIX AND NOT APPLE)
+    # This should match Linux (not macOS)
+    find_package(X11 REQUIRED)
+    if(X11_FOUND)
+        target_include_directories(BT4H PUBLIC ${X11_INCLUDE_DIR})
+        target_link_libraries(BT4H PUBLIC ${X11_LIBRARIES})
+    endif()
+endif()
+
