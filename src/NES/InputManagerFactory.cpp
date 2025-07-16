@@ -139,6 +139,20 @@ std::unique_ptr<InputManager> initializeNew(const std::string config_filepath) {
                     device = e.jbutton.which;
                     curState = 0;
                 }
+            } else if (e.type == SDL_EVENT_JOYSTICK_AXIS_MOTION) {
+                if(curState != -1 && device != -1) {
+                    j.indices[curState] = e.jaxis.axis;
+                    if(e.jaxis.value >= 0) {
+                        j.types[curState] = JoystickInputTypes::AXIS_POSITIVE;
+                    } else {
+                        j.types[curState] = JoystickInputTypes::AXIS_NEGATIVE;
+                    }
+                    curState++;
+                    SDL_FlushEvent(SDL_EVENT_JOYSTICK_AXIS_MOTION);
+                } else if (device == -2) {
+                    device = e.jaxis.which;
+                    curState = 0;
+                }
             }
         }
 
@@ -177,7 +191,7 @@ std::unique_ptr<InputManager> initializeNew(const std::string config_filepath) {
             goto end_initialize_new;
         }
         SDL_RenderPresent(r);
-
+        SDL_Delay(100);
     }
     end_initialize_new:
 
