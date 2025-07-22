@@ -3,9 +3,16 @@
 #include <iostream>
 
 #include "KeyboardManager.hpp"
+#include "SaveAndLoad.hpp"
 
 namespace BT4H {
 
+
+KeyboardManager::KeyboardManager(std::string appname) : InputManager({0}) {
+    _binding = SaveLoad::SaveOrLoadKeyboardConfig(nullptr, false, appname);
+}
+
+    
 EventField KeyboardManager::getEvents() {
     EventField output = 0;
     EventField currentState = 0;

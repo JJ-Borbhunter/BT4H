@@ -1,5 +1,6 @@
 #pragma once
 
+#include <string>
 #include <SDL3/SDL_joystick.h>
 #include "InputManager.hpp"
 
@@ -23,7 +24,7 @@ typedef struct joystick_binding JoystickBinding;
 
 class JoystickManager : public InputManager {
 public:
-	JoystickManager(SDL_GUID g, JoystickBinding b);
+	JoystickManager(SDL_GUID g, std::string appname);
 	EventField getEvents() override;
 
 	~JoystickManager() { SDL_CloseJoystick(_joystick); }

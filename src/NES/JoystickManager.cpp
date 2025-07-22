@@ -1,4 +1,5 @@
 #include "JoystickManager.hpp"
+#include "SaveAndLoad.hpp"
 #include <cstring>
 
 namespace BT4H {
@@ -6,18 +7,22 @@ namespace BT4H {
 const float DEADZONE = 0.3;
 const int INT_DEADZONE = static_cast<int>(SDL_JOYSTICK_AXIS_MAX * DEADZONE);
 
-JoystickManager::JoystickManager(SDL_GUID g, JoystickBinding j) :
-InputManager(g), _binding(j) {
+JoystickManager::JoystickManager(SDL_GUID g, std::string appname) :
+InputManager(g) {
 	SDL_JoystickID* ids = SDL_GetJoysticks(nullptr);
 	for (int i = 0; ids[i] != 0; i++) {
 		SDL_GUID gi = SDL_GetJoystickGUIDForID(ids[i]);
 		if(std::memcmp(&g, &gi, sizeof(SDL_GUID)) == 0) {
 			_device = ids[i];
-			break;
+			goto found;
 		}
 	}
+	throw std::invalid_argument("Requested Joystick not connected.");
+	found:
 
 	_joystick = SDL_OpenJoystick(_device);
+
+	_binding = SaveLoad::SaveOrLoadJoystickConfig(nullptr, g, false, appname);
 }
 
 

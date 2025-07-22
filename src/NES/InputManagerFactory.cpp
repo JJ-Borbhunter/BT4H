@@ -1,10 +1,13 @@
-#include <sago/platform_folders.h>
+// +JMJ +
+// Factory pattern header for input managers
 
 #include "InputManagerFactory.hpp"
 #include "image.h"
+#include "SaveAndLoad.hpp"
 
 
 #include <iostream>
+#include <vector>
 
 
 constexpr int BMP_CHAR_HEIGHT = 9;
@@ -13,7 +16,7 @@ constexpr int BMP_CHAR_ROW_LEN = 18;
 constexpr int FONT_HEIGHT = 16;
 constexpr int FONT_WIDTH = 12;
 
-
+constexpr float DEADZONE = 0.95;
 
 namespace BT4H {
 
@@ -22,11 +25,16 @@ namespace InputManagerFactory {
 void _drawText(const char* text, int x, int y, SDL_Renderer* r, SDL_Texture* font);
 int _newline(int i);
 
-std::unique_ptr<InputManager> fromGUID(SDL_GUID guid, const std::string filepath) {
+std::unique_ptr<InputManager> fromGUID(SDL_GUID guid, const std::string appname) {
     if (std::memcmp(&KEYBOARD, &guid, sizeof(SDL_GUID)) == 0) {
-        return std::make_unique<KeyboardManager>(KEYBOARD_DEFAULT);
+        return std::make_unique<KeyboardManager>(appname);
     } else {
-        return NULL;
+        try {
+            std::cout << "Trying joystick" << std::endl;
+            return std::make_unique<JoystickManager>(guid, appname);
+        } catch (std::invalid_argument) {
+            return nullptr;
+        }
     }
 }
 
@@ -91,6 +99,7 @@ int _newline(int i) {
 }
 
 
+
 std::unique_ptr<InputManager> initializeNew(const std::string config_filepath) {
     SDL_Init(SDL_INIT_JOYSTICK);
 
@@ -140,6 +149,7 @@ std::unique_ptr<InputManager> initializeNew(const std::string config_filepath) {
                     curState = 0;
                 }
             } else if (e.type == SDL_EVENT_JOYSTICK_AXIS_MOTION) {
+                if(abs(e.jaxis.value) < static_cast<unsigned>(SDL_JOYSTICK_AXIS_MAX * DEADZONE)) continue;
                 if(curState != -1 && device != -1) {
                     j.indices[curState] = e.jaxis.axis;
                     if(e.jaxis.value >= 0) {
@@ -213,21 +223,39 @@ std::unique_ptr<InputManager> initializeNew(const std::string config_filepath) {
     SDL_DestroyRenderer(r);
     SDL_DestroyWindow(w);
 
+    SDL_GUID g;
+    if(device >= 0) {
+        g = SDL_GetJoystickGUIDForID(device);
+    }
+
     for(auto stick : sticks) {
         SDL_CloseJoystick(stick);
     }
+    
+    if (device == -1) {  // Keyboard
+        SaveLoad::SaveOrLoadKeyboardConfig(&k, true, config_filepath);
+        return std::make_unique<KeyboardManager>(config_filepath);
+    } else if (device != -2) {  // Just to be sure there is a device set
+        SaveLoad::SaveOrLoadJoystickConfig(&j, g, true, config_filepath);
+        return std::make_unique<JoystickManager>(g, config_filepath);
+    }
 
-    std:: cout << device << ": ";
-    if (device == -1) {
-        for (size_t i = 0; i < 8; i++) {
-            std::cout << SDL_GetScancodeName((SDL_Scancode)k[i]) << ", ";
+    return nullptr;    
+}
+
+void loadAll(std::vector<std::unique_ptr<InputManager>>& vec, std::string appname) {
+    vec.clear();
+    vec.emplace_back(fromGUID(KEYBOARD, appname));
+
+    SDL_JoystickID* jIDs = SDL_GetJoysticks(nullptr);
+    for(int i = 0; jIDs[i] != 0; i++) {
+        std::cout << "joystick " << i << std::endl;
+        auto j = fromGUID(SDL_GetJoystickGUIDForID(i), appname);
+        if(j != nullptr) {
+            vec.emplace_back(std::move(j));
         }
     }
-    std::cout << std::endl;
-
-    
-
-    return std::make_unique<KeyboardManager>(k);
+    SDL_free(jIDs);
 }
 
 
