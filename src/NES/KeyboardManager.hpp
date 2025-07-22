@@ -2,6 +2,8 @@
 #include "InputManager.hpp"
 
 namespace BT4H {
+    
+typedef std::array<uint16_t, NUM_BUTTONS_PER_BINDING> KeyboardBinding;
 
 class KeyboardManager : public InputManager {
 public:

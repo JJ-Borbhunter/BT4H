@@ -25,7 +25,6 @@ typedef enum Buttons::buttons InputButton;
 const int NUM_BUTTONS_PER_BINDING = 8;
 const int KEYBOARD_ID = -1;
 
-typedef std::array<uint16_t, NUM_BUTTONS_PER_BINDING> KeyboardBinding;
 typedef uint32_t EventField;
 
 

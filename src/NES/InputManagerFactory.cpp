@@ -105,7 +105,7 @@ std::unique_ptr<InputManager> initializeNew(const std::string config_filepath) {
 
     int curState = -1;
     JoystickBinding j;
-    KeyboardBinding k;
+    KeyboardBinding k = KEYBOARD_DEFAULT;
     int device = -2;
 
     std::vector<SDL_Joystick*> sticks;
@@ -225,7 +225,9 @@ std::unique_ptr<InputManager> initializeNew(const std::string config_filepath) {
     }
     std::cout << std::endl;
 
-    return std::make_unique<KeyboardManager>(KEYBOARD_DEFAULT);
+    
+
+    return std::make_unique<KeyboardManager>(k);
 }
 
 
