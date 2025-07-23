@@ -2,10 +2,26 @@
 #include "SaveAndLoad.hpp"
 #include <cstring>
 
+#include <bitset>
+
 namespace BT4H {
 
 const float DEADZONE = 0.3;
 const int INT_DEADZONE = static_cast<int>(SDL_JOYSTICK_AXIS_MAX * DEADZONE);
+
+std::string _joystick_event_name(uint8_t event) {
+	switch (event) {
+	case JoystickInputTypes::BUTTON: return "BUTTON";
+	case JoystickInputTypes::AXIS_POSITIVE: return "AXIS+";
+	case JoystickInputTypes::AXIS_NEGATIVE: return "AXIS-";
+	case JoystickInputTypes::HAT_DOWN: return "HATv";
+	case JoystickInputTypes::HAT_UP: return "HAT^";
+	case JoystickInputTypes::HAT_LEFT: return "HAT<";
+	case JoystickInputTypes::HAT_RIGHT: return "HAT>";
+	default: return "N/A";
+	}
+	
+}
 
 JoystickManager::JoystickManager(SDL_GUID g, std::string appname) :
 InputManager(g) {
@@ -19,10 +35,20 @@ InputManager(g) {
 	}
 	throw std::invalid_argument("Requested Joystick not connected.");
 	found:
+	SDL_free(ids);
 
 	_joystick = SDL_OpenJoystick(_device);
-
 	_binding = SaveLoad::SaveOrLoadJoystickConfig(nullptr, g, false, appname);
+
+	// Print all binding types and indices for debugging. Uncomment the next 6 lines if needed.
+	/*
+	for(auto& a : _binding.types) {
+		std::cout << _joystick_event_name(a) << ", ";
+	}	std::cout << std::endl;
+	for(auto& i : _binding.indices) {
+		std::cout << (int)i << ", ";
+	}	std::cout << std::endl;
+	*/
 }
 
 

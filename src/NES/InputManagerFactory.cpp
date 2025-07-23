@@ -16,7 +16,7 @@ constexpr int BMP_CHAR_ROW_LEN = 18;
 constexpr int FONT_HEIGHT = 16;
 constexpr int FONT_WIDTH = 12;
 
-constexpr float DEADZONE = 0.95;
+constexpr float DEADZONE = 0.97;
 
 namespace BT4H {
 
@@ -30,7 +30,6 @@ std::unique_ptr<InputManager> fromGUID(SDL_GUID guid, const std::string appname)
         return std::make_unique<KeyboardManager>(appname);
     } else {
         try {
-            std::cout << "Trying joystick" << std::endl;
             return std::make_unique<JoystickManager>(guid, appname);
         } catch (std::invalid_argument) {
             return nullptr;
@@ -163,6 +162,28 @@ std::unique_ptr<InputManager> initializeNew(const std::string config_filepath) {
                     device = e.jaxis.which;
                     curState = 0;
                 }
+            } else if (e.type == SDL_EVENT_JOYSTICK_HAT_MOTION) {
+                if (e.jhat.value == 0) { continue; }
+                if(curState != -1 && device != -1) {
+                    j.indices[curState] = e.jhat.hat;
+                    uint8_t& v = e.jhat.value;
+                    if(v & SDL_HAT_UP) {
+                        j.types[curState] = JoystickInputTypes::HAT_UP;
+                    } else if (v & SDL_HAT_DOWN) {
+                        j.types[curState] = JoystickInputTypes::HAT_DOWN;
+                    } else if (v & SDL_HAT_LEFT) {
+                        j.types[curState] = JoystickInputTypes::HAT_LEFT;
+                    } else if (v & SDL_HAT_RIGHT) {
+                        j.types[curState] = JoystickInputTypes::HAT_RIGHT;
+                    } else {
+                        continue;
+                    }
+                    curState++;
+                    SDL_FlushEvent(SDL_EVENT_JOYSTICK_HAT_MOTION);
+                } else if (device == -2) {
+                    device = e.jhat.which;
+                    curState = 0;
+                }
             }
         }
 
@@ -249,8 +270,7 @@ void loadAll(std::vector<std::unique_ptr<InputManager>>& vec, std::string appnam
 
     SDL_JoystickID* jIDs = SDL_GetJoysticks(nullptr);
     for(int i = 0; jIDs[i] != 0; i++) {
-        std::cout << "joystick " << i << std::endl;
-        auto j = fromGUID(SDL_GetJoystickGUIDForID(i), appname);
+        auto j = fromGUID(SDL_GetJoystickGUIDForID(jIDs[i]), appname);
         if(j != nullptr) {
             vec.emplace_back(std::move(j));
         }
