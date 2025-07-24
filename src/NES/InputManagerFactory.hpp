@@ -13,7 +13,7 @@
 
 namespace BT4H {
 
-const SDL_GUID KEYBOARD = { 0 };
+constexpr SDL_GUID KEYBOARD = { 0 };
 
 namespace InputManagerFactory {
 

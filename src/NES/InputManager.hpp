@@ -17,7 +17,8 @@ enum buttons {
     LEFT    = 1 << 4,
     RIGHT   = 1 << 5,
     SELECT  = 1 << 6,
-    START   = 1 << 7
+    START   = 1 << 7,
+    DISCONNECT = 1 << 31
 };
 }
 typedef enum Buttons::buttons InputButton;
@@ -30,7 +31,7 @@ typedef uint32_t EventField;
 
 class InputManager {
 public:
-    InputManager(SDL_GUID guid) : _guid(guid), _prevStates(0) {};
+    InputManager() : _prevStates(0) {};
 
     float getState(InputButton b) {return _getState(_properIndex(b)); };
     virtual EventField getEvents(EventField* FallingEdge = nullptr) = 0;
@@ -38,8 +39,6 @@ public:
     virtual ~InputManager() {}
 
 protected:
-    SDL_GUID _guid;
-
     EventField _prevStates;
 
     // Only works on GCC or CLANG. There is a c++20 option too. 

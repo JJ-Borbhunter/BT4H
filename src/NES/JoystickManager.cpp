@@ -23,8 +23,7 @@ std::string _joystick_event_name(uint8_t event) {
 	
 }
 
-JoystickManager::JoystickManager(SDL_GUID g, std::string appname) :
-InputManager(g) {
+JoystickManager::JoystickManager(SDL_GUID g, std::string appname) {
 	SDL_JoystickID* ids = SDL_GetJoysticks(nullptr);
 	for (int i = 0; ids[i] != 0; i++) {
 		SDL_GUID gi = SDL_GetJoystickGUIDForID(ids[i]);
