@@ -17,14 +17,19 @@ class UnifiedInputManager : public InputManager {
 public:
     UnifiedInputManager(std::string appname);
     EventField getEvents(EventField* FallingEdge) override;
+
+    SDL_GUID getGUIDOfLastUsed();
+    void resetInputs();
 private:
     std::vector<InputManagerPtr> _inputs;
     std::unordered_set<int> _handledDevices;
     float _getState(unsigned index);
 
     void _updateConnectedSticks();
+    int _getDevice() { return _device; }
 
     std::string _appname;
+    int _lastUsed;
 };
 
 

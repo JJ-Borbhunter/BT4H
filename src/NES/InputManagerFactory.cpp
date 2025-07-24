@@ -1,5 +1,6 @@
 // +JMJ +
 // Factory pattern header for input managers
+// Never creates a UnifiedInputManager. If the user wants one they should make it explicitly.
 
 #include "InputManagerFactory.hpp"
 #include "image.h"
@@ -8,6 +9,9 @@
 
 #include <iostream>
 #include <vector>
+#include <unordered_set>
+#include <SDL3/SDL_surface.h>
+
 
 
 constexpr int BMP_CHAR_HEIGHT = 9;
@@ -117,14 +121,20 @@ std::unique_ptr<InputManager> initializeNew(const std::string config_filepath) {
     int device = -2;
 
     std::vector<SDL_Joystick*> sticks;
-    SDL_JoystickID* jIDs = SDL_GetJoysticks(nullptr);
-    for(int i = 0; jIDs[i] != 0; i++) {
-        sticks.push_back(SDL_OpenJoystick(jIDs[i]));
-        std::cout << i << std::endl;
-    }
-    SDL_free(jIDs);
+    std::unordered_set<int> handeledSticks;
+    SDL_JoystickID* jIDs;
 
     while(true) {
+
+        jIDs = SDL_GetJoysticks(nullptr);
+        for(int i = 0; jIDs[i] != 0; i++) {
+            if(handeledSticks.find(jIDs[i]) == handeledSticks.end()) {
+                sticks.push_back(SDL_OpenJoystick(jIDs[i]));
+                handeledSticks.insert(jIDs[i]);
+            }
+        }
+        SDL_free(jIDs);
+
         SDL_Event e;
         while(SDL_PollEvent(&e)){
             if (e.type == SDL_EVENT_WINDOW_CLOSE_REQUESTED) {

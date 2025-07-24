@@ -4,7 +4,6 @@
 #include <string>
 #include <cstring>
 #include <SDL3/SDL.h>
-#include <SDL3/SDL_surface.h>
 #include <vector>
 
 #include "InputManager.hpp"

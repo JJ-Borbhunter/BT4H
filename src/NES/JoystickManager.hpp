@@ -29,7 +29,6 @@ public:
 
 	~JoystickManager() { SDL_CloseJoystick(_joystick); }
 private:
-	int _device;
 	SDL_Joystick* _joystick;
 	float _getState(unsigned i) override;
 	JoystickBinding _binding;

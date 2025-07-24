@@ -21,7 +21,7 @@ private:
 
 namespace BT4H {
 
-UnifiedInputManager::UnifiedInputManager(std::string appname) : _appname(appname) {
+UnifiedInputManager::UnifiedInputManager(std::string appname) : _appname(appname), _lastUsed(0) {
     _updateConnectedSticks();
 };
 
@@ -30,11 +30,14 @@ EventField UnifiedInputManager::getEvents(EventField* FallingEdge = nullptr) {
     _updateConnectedSticks();
 
     EventField output = 0;
+    EventField lastOutput = 0;
     EventField fallingEdgeInternal = 0;
     EventField* fallingEdgeInternalPtr = (FallingEdge) ? &fallingEdgeInternal : nullptr;
     for (InputManagerPtr& p : _inputs) {
-        output |= p->getEvents(fallingEdgeInternalPtr);
+        lastOutput = p->getEvents(fallingEdgeInternalPtr);
+        output |= lastOutput;
         if(FallingEdge) { (*FallingEdge) |= fallingEdgeInternal; }
+        if(lastOutput) { _lastUsed = p->getDevice(); }
     }
     return output;
 }
@@ -64,6 +67,23 @@ void UnifiedInputManager::_updateConnectedSticks() {
         }
     }
     SDL_free(jIDs);
+}
+
+
+void UnifiedInputManager::resetInputs() {
+    _inputs.clear();
+    _updateConnectedSticks();
+}
+
+// THis function exists to be used when a unified manager is created explicitly. 
+// This allows the user to grab the most recently used device so they can create a manager for 
+// that device and use it in their game instead of their menus.
+SDL_GUID UnifiedInputManager::getGUIDOfLastUsed() {
+    if(_lastUsed) {
+        return KEYBOARD;
+    } else {
+        return SDL_GetJoystickGUIDForID(_lastUsed);
+    }
 }
 
 }

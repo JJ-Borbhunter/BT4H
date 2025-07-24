@@ -38,8 +38,11 @@ public:
 
     virtual ~InputManager() {}
 
+    int getDevice() { return _device; }
+
 protected:
     EventField _prevStates;
+	int _device;
 
     // Only works on GCC or CLANG. There is a c++20 option too. 
     int _properIndex(InputButton b) { return __builtin_ctz(static_cast<unsigned>(b)); }

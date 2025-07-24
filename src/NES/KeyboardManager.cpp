@@ -9,6 +9,7 @@ namespace BT4H {
 
 
 KeyboardManager::KeyboardManager(std::string appname) {
+    _device = 0;
     _binding = SaveLoad::SaveOrLoadKeyboardConfig(nullptr, false, appname);
 }
 
