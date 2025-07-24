@@ -21,7 +21,7 @@ class KeyboardManager : public InputManager {
 public:
     KeyboardManager(std::string appname);
 
-    EventField getEvents() override;
+    EventField getEvents(EventField* FallingEdge) override;
 private:
     KeyboardBinding _binding;
     float _getState(unsigned i) override;

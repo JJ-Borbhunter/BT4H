@@ -52,7 +52,7 @@ InputManager(g) {
 }
 
 
-EventField JoystickManager::getEvents() {
+EventField JoystickManager::getEvents(EventField* FallingEdge = nullptr) {
 	EventField currentState = 0;
 	EventField output;
 	EventField currentBit;
@@ -95,6 +95,7 @@ EventField JoystickManager::getEvents() {
 	}
 
 	output = currentState & ~_prevStates;
+	if(FallingEdge) { *FallingEdge = ~currentState & _prevStates; }
 	_prevStates = currentState;
 	return output;
 }

@@ -13,7 +13,7 @@ KeyboardManager::KeyboardManager(std::string appname) : InputManager({0}) {
 }
 
     
-EventField KeyboardManager::getEvents() {
+EventField KeyboardManager::getEvents(EventField* FallingEdge = nullptr) {
     EventField output = 0;
     EventField currentState = 0;
     uint8_t current;
@@ -24,13 +24,11 @@ EventField KeyboardManager::getEvents() {
         current = 1 << i;
         if(keyboardState[_binding[i]]) {
             currentState |= current;
-            if(!(_prevStates & current)) {
-                output |= current;
-            }
         }
     }
     
-    //std::cout << std::bitset<8>(_prevStates) << std::endl;
+    output = currentState & ~_prevStates;
+    if(FallingEdge) { *FallingEdge = ~currentState & _prevStates; }
     _prevStates = currentState;  // Save current state not current output
     return output;
 }

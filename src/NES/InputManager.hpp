@@ -33,7 +33,7 @@ public:
     InputManager(SDL_GUID guid) : _guid(guid), _prevStates(0) {};
 
     float getState(InputButton b) {return _getState(_properIndex(b)); };
-    virtual EventField getEvents() = 0;
+    virtual EventField getEvents(EventField* FallingEdge = nullptr) = 0;
 
     virtual ~InputManager() {}
 
