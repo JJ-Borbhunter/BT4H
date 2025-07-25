@@ -72,6 +72,7 @@ void UnifiedInputManager::_updateConnectedSticks() {
 
 void UnifiedInputManager::resetInputs() {
     _inputs.clear();
+    _handledDevices.clear();
     _updateConnectedSticks();
 }
 
