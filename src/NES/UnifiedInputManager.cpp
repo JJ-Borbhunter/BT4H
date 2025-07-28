@@ -76,7 +76,7 @@ void UnifiedInputManager::resetInputs() {
     _updateConnectedSticks();
 }
 
-// THis function exists to be used when a unified manager is created explicitly. 
+// This function exists to be used when a unified manager is created explicitly. 
 // This allows the user to grab the most recently used device so they can create a manager for 
 // that device and use it in their game instead of their menus.
 SDL_GUID UnifiedInputManager::getGUIDOfLastUsed() {
